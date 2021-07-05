@@ -15,7 +15,7 @@ var sugar *zap.SugaredLogger
 
 // getLumberjackLogger 获取lumberjack.Logger
 func getLumberjackLogger(root *config.YAML, level string) *lumberjack.Logger {
-	option := root.Get("LOG4G").Get(level)
+	option := root.Get("LOG4GO").Get(level)
 	filename := option.Get("FILE_PATH_NAME").String()
 	maxSize, err := strconv.Atoi(option.Get("MAXSIZE").String())
 	if err != nil {
@@ -43,11 +43,11 @@ func getLumberjackLogger(root *config.YAML, level string) *lumberjack.Logger {
 }
 
 func init() {
-	var options config.YAMLOption = config.File("log4g.yml")
+	var options config.YAMLOption = config.File("log4go.yml")
 	root, _ := config.NewYAML(options)
-	log4gMode := root.Get("LOG4G").Get("MODE").String()
+	log4goMode := root.Get("LOG4GO").Get("MODE").String()
 	infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		switch log4gMode {
+		switch log4goMode {
 		case "contain":
 			return lvl >= zapcore.InfoLevel
 		case "independent":
