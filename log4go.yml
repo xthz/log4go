@@ -1,0 +1,26 @@
+LOG4GO:
+    # contain, independent
+    MODE: independent
+    INFO:
+        # 文件路径
+        FILE_PATH_NAME: haha.log
+        # 滚动的最大数据量(MB)
+        MAXSIZE: 50
+        # 最大备份数量
+        MAXBACKUP_COUNT: 10
+        # 最大天数(day)
+        MAXAGE: 28
+        # 是否启用压缩
+        COMPRESS: true
+    ERROR:
+        # 文件路径
+        FILE_PATH_NAME: error.log
+        # 滚动的最大数据量(MB)
+        MAXSIZE: 50
+        # 最大备份数量
+        MAXBACKUP_COUNT: 10
+        # 最大天数(day)
+        MAXAGE: 28
+        # 是否启用压缩
+        COMPRESS: true
+    
