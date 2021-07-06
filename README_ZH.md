@@ -82,7 +82,7 @@ LOG4GO:
         # 是否应使用 gzip 压缩轮换的日志文件
         COMPRESS: true
     ERROR:
-    	# 级别大于或等于ERROR的文件路径。
+        # 级别大于或等于ERROR的文件路径。
         FILE_PATH_NAME: error.log
         MAXSIZE: 50
         MAXBACKUP_COUNT: 10

@@ -83,7 +83,7 @@ LOG4GO:
         # Determines if the rotated log files should be compressed using gzip.
         COMPRESS: true
     ERROR:
-    	# The file path with a level greater than or equal to ERROR.
+        # The file path with a level greater than or equal to ERROR.
         FILE_PATH_NAME: error.log
         MAXSIZE: 50
         MAXBACKUP_COUNT: 10
