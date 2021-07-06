@@ -5,7 +5,7 @@ Go log module based on Uber's zap and lumberjack
 
 
 
-#### Install
+### Install
 
 ```sh
 go get -u github.com/wanghuiyt/log4go
@@ -13,7 +13,7 @@ go get -u github.com/wanghuiyt/log4go
 
 
 
-#### Usage
+### Usage
 
 example.go
 
@@ -48,7 +48,7 @@ exampleProject
 
 
 
-#### Configuration
+### Configuration
 
 Make sure `log4go.yml` exists in the project directory, If it doesn't exist, the program will throw an exception `The system cannot find the file specified`.
 
@@ -67,7 +67,7 @@ LOG4GO:
     # The value can only be `contain` or `independent`.
     LEVEL_MODE: independent
     # If true, the color of the level is displayed in the file.
-    # The value can only be `true` or `flase`.
+    # The value can only be `true` or `false`.
     LEVEL_COLOR: true
     INFO:
         # File path with level greater than INFO. 
