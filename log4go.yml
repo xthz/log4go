@@ -1,9 +1,13 @@
 LOG4GO:
+    # Development, Production
+    FORMAT: Development
+    # Sugar, Logger
+    MODE: Sugar
     # contain, independent
-    MODE: independent
+    LEVEL_SAVE: independent
     INFO:
         # 文件路径
-        FILE_PATH_NAME: haha.log
+        FILE_PATH_NAME: info.log
         # 滚动的最大数据量(MB)
         MAXSIZE: 50
         # 最大备份数量

@@ -8,10 +8,12 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 )
 
 var sugar *zap.SugaredLogger
+var Logger *zap.Logger
 
 // getLumberjackLogger 获取lumberjack.Logger
 func getLumberjackLogger(root *config.YAML, level string) *lumberjack.Logger {
@@ -45,9 +47,26 @@ func getLumberjackLogger(root *config.YAML, level string) *lumberjack.Logger {
 func init() {
 	var options config.YAMLOption = config.File("log4go.yml")
 	root, _ := config.NewYAML(options)
+	log4goFormat := root.Get("LOG4GO").Get("FORMAT").String()
 	log4goMode := root.Get("LOG4GO").Get("MODE").String()
+	log4goLevelSave := root.Get("LOG4GO").Get("LEVEL_SAVE").String()
+
+	var logConfig zapcore.EncoderConfig
+	if strings.ToUpper(log4goFormat) == "DEVELOPMENT" {
+		logConfig = zap.NewDevelopmentEncoderConfig()
+	} else if strings.ToUpper(log4goFormat) == "PRODUCTION" {
+		logConfig = zap.NewProductionEncoderConfig()
+	} else {
+		logConfig = zap.NewDevelopmentEncoderConfig()
+	}
+
+	logConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+		enc.AppendString(t.Format("2006.01.02 15:04:05"))
+	}
+	logConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+
 	infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		switch log4goMode {
+		switch log4goLevelSave {
 		case "contain":
 			return lvl >= zapcore.InfoLevel
 		case "independent":
@@ -56,12 +75,6 @@ func init() {
 			return lvl >= zapcore.InfoLevel
 		}
 	})
-	// 读取Product配置
-	logConfig := zap.NewProductionEncoderConfig()
-	logConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(t.Format("2006.01.02 15:04:05"))
-	}
-	logConfig.EncodeLevel = zapcore.CapitalLevelEncoder
 	errorLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl >= zapcore.ErrorLevel
 	})
@@ -80,13 +93,24 @@ func init() {
 		}
 	}(hookError)
 
-	// 最后创建具体的Logger
 	core := zapcore.NewTee(
 		zapcore.NewCore(zapcore.NewJSONEncoder(logConfig), zapcore.AddSync(hookInfo), infoLevel),
 		zapcore.NewCore(zapcore.NewJSONEncoder(logConfig), zapcore.AddSync(hookError), errorLevel),
 	)
 	logger := zap.New(core, zap.AddCaller())
-	sugar = logger.Sugar()
+	defer func(logger *zap.Logger) {
+		if err := logger.Sync(); err != nil {
+			log.Fatalln(err)
+		}
+	}(logger)
+
+	if strings.ToUpper(log4goMode) == "SUGAR" {
+		sugar = logger.Sugar()
+	} else if strings.ToUpper(log4goMode) == "LOGGER" {
+		Logger = logger
+	} else {
+		sugar = logger.Sugar()
+	}
 }
 
 func Info(args ...interface{}) {
