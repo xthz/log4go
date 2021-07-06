@@ -1,4 +1,4 @@
-package log4go
+package logger
 
 import (
 	"fmt"
@@ -46,7 +46,10 @@ func getLumberjackLogger(root *config.YAML, level string) *lumberjack.Logger {
 
 func init() {
 	var options config.YAMLOption = config.File("log4go.yml")
-	root, _ := config.NewYAML(options)
+	root, err := config.NewYAML(options)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	log4goFormat := root.Get("LOG4GO").Get("FORMAT").String()
 	log4goLevelMode := root.Get("LOG4GO").Get("LEVEL_MODE").String()
 	log4goLevelColor, err := strconv.ParseBool(root.Get("LOG4GO").Get("LEVEL_COLOR").String())
