@@ -11,18 +11,18 @@ Go log module based on Uber's zap and lumberjack
 package main
 
 import (
-	"github.com/wanghuiyt/log4go"
+  "github.com/wanghuiyt/log4go"
 )
 
 func main() {
-	logger.Info("This is a message")
-	logger.Infow("failed to fetch URL",
-		"url", "example.com",
-		"attempt", 3,
-		"backoff", 1,
-	)
-	logger.Warn("This is a warning message")
-	logger.Error("This is an error message")
+  logger.Info("This is a message")
+  logger.Infow("failed to fetch URL",
+    "url", "example.com",
+    "attempt", 3,
+    "backoff", 1,
+  )
+  logger.Warn("This is a warning message")
+  logger.Error("This is an error message")
 }
 ```
 
