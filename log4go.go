@@ -48,25 +48,34 @@ func init() {
 	var options config.YAMLOption = config.File("log4go.yml")
 	root, _ := config.NewYAML(options)
 	log4goFormat := root.Get("LOG4GO").Get("FORMAT").String()
-	log4goMode := root.Get("LOG4GO").Get("MODE").String()
-	log4goLevelSave := root.Get("LOG4GO").Get("LEVEL_SAVE").String()
-
-	var logConfig zapcore.EncoderConfig
-	if strings.ToUpper(log4goFormat) == "DEVELOPMENT" {
-		logConfig = zap.NewDevelopmentEncoderConfig()
-	} else if strings.ToUpper(log4goFormat) == "PRODUCTION" {
-		logConfig = zap.NewProductionEncoderConfig()
-	} else {
-		logConfig = zap.NewDevelopmentEncoderConfig()
+	log4goLevelMode := root.Get("LOG4GO").Get("LEVEL_MODE").String()
+	log4goLevelColor, err := strconv.ParseBool(root.Get("LOG4GO").Get("LEVEL_COLOR").String())
+	if err != nil {
+		log.Fatalln("LEVEL_COLOR 参数不合法")
 	}
 
-	logConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+	var encode zapcore.Encoder
+	e := zap.NewProductionEncoderConfig()
+	e.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 		enc.AppendString(t.Format("2006.01.02 15:04:05"))
 	}
-	logConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	if log4goLevelColor {
+		e.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	} else {
+		e.EncodeLevel = zapcore.CapitalLevelEncoder
+	}
+
+	// 判断是Json配置还是Text配置
+	if strings.ToUpper(log4goFormat) == "TEXT" {
+		encode = zapcore.NewConsoleEncoder(e)
+	} else if strings.ToUpper(log4goFormat) == "JSON" {
+		encode = zapcore.NewJSONEncoder(e)
+	} else {
+		encode = zapcore.NewJSONEncoder(e)
+	}
 
 	infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		switch log4goLevelSave {
+		switch log4goLevelMode {
 		case "contain":
 			return lvl >= zapcore.InfoLevel
 		case "independent":
@@ -94,23 +103,16 @@ func init() {
 	}(hookError)
 
 	core := zapcore.NewTee(
-		zapcore.NewCore(zapcore.NewJSONEncoder(logConfig), zapcore.AddSync(hookInfo), infoLevel),
-		zapcore.NewCore(zapcore.NewJSONEncoder(logConfig), zapcore.AddSync(hookError), errorLevel),
+		zapcore.NewCore(encode, zapcore.AddSync(hookInfo), infoLevel),
+		zapcore.NewCore(encode, zapcore.AddSync(hookError), errorLevel),
 	)
-	logger := zap.New(core, zap.AddCaller())
+	Logger = zap.New(core, zap.AddCaller())
 	defer func(logger *zap.Logger) {
 		if err := logger.Sync(); err != nil {
 			log.Fatalln(err)
 		}
-	}(logger)
-
-	if strings.ToUpper(log4goMode) == "SUGAR" {
-		sugar = logger.Sugar()
-	} else if strings.ToUpper(log4goMode) == "LOGGER" {
-		Logger = logger
-	} else {
-		sugar = logger.Sugar()
-	}
+	}(Logger)
+	sugar = Logger.Sugar()
 }
 
 func Info(args ...interface{}) {

@@ -1,10 +1,10 @@
 LOG4GO:
-    # Development, Production
-    FORMAT: Development
-    # Sugar, Logger
-    MODE: Sugar
+    # Text, Json
+    FORMAT: Text
     # contain, independent
-    LEVEL_SAVE: independent
+    LEVEL_MODE: independent
+    # true, flase
+    LEVEL_COLOR: true
     INFO:
         # 文件路径
         FILE_PATH_NAME: info.log
