@@ -109,7 +109,8 @@ func init() {
 		zapcore.NewCore(encode, zapcore.AddSync(hookInfo), infoLevel),
 		zapcore.NewCore(encode, zapcore.AddSync(hookError), errorLevel),
 	)
-	Logger = zap.New(core, zap.AddCaller())
+	// 重要, 新增zap.AddCallerSkip(1)使调用往上调一层
+	Logger = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	defer func(logger *zap.Logger) {
 		if err := logger.Sync(); err != nil {
 			log.Fatalln(err)
